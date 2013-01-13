@@ -1,0 +1,148 @@
+
+
+class Board(object):
+    num_players = 2
+    rows = 6
+    cols = 7
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def start(self):
+        return (0, 0, 1)
+
+    def display(self, state, play):
+        p1, p2, player = state
+
+        piece = {0: " ", 1: u"\u25cb", 2: u"\u25cf"}
+        header = "   {0}".format(
+            " ".join(str(i) for i in xrange(self.cols)))
+        bar = "  +{0}+".format("-"*(2*self.cols-1))
+        msg = "Played: {0}\nPlayer {1} to move.".format(
+            self.pack(play), player)
+
+        board = u"\n".join(
+            u"  |{0}|".format(
+                u"|".join(piece[((p1 >> ((c+1) * self.rows - r - 1)) & 1) +
+                                2*((p2 >> ((c+1) * self.rows - r - 1)) & 1)]
+                          for c in xrange(self.cols)))
+            for r in xrange(self.rows))
+
+        board = u"\n".join((header, bar, board, bar, header, msg))
+        return board
+
+    def parse(self, play):
+        return int(play)
+
+    def pack(self, play):
+        return str(play)
+
+    def is_legal(self, state, play):
+        p1, p2, player = state
+        occupied = p1 | p2
+        column = (occupied >> (self.rows * play)) & 0b111111
+        return column <= 0b11111
+
+    def legal_plays(self, state):
+        p1, p2, player = state
+        occupied = p1 | p2
+        return [c for c in xrange(self.cols)
+                if (occupied >> (self.rows * c)) & 0b111111 <= 0b11111]
+
+    def play(self, state, play):
+        p1, p2, player = state
+        occupied = p1 | p2
+        column = (occupied >> (self.rows * play)) & 0b111111
+        column += 1
+        column <<= self.rows * play
+        if player == 1:
+            p1 |= column
+        else:
+            p2 |= column
+        return (p1, p2, 3 - player)
+
+    def next_player(self, state):
+        return state[-1]
+
+    def winner(self, state_lst):
+        state = state_lst[-1]
+        p1, p2, player = state
+        occupied = p1 | p2
+
+        top_row_mask = 0x1f7df7df7df
+        bottom_row_mask = 0x3efbefbefbe
+
+        for p_num, p_val in ((1, p1), (2, p2)):
+            # W
+            g = p_val
+            g &= (g >> 6) & p_val
+            g &= (g >> 6) & p_val
+            g &= (g >> 6) & p_val
+            if g:
+                return p_num
+
+            # E
+            g = p_val
+            g &= (g << 6) & p_val
+            g &= (g << 6) & p_val
+            g &= (g << 6) & p_val
+            if g:
+                return p_num
+
+            # N
+            g = p_val
+            g &= (g << 1) & p_val & bottom_row_mask
+            g &= (g << 1) & p_val & bottom_row_mask
+            g &= (g << 1) & p_val & bottom_row_mask
+            if g:
+                return p_num
+
+            # S
+            g = p_val
+            g &= (g >> 1) & p_val & top_row_mask
+            g &= (g >> 1) & p_val & top_row_mask
+            g &= (g >> 1) & p_val & top_row_mask
+            if g:
+                return p_num
+
+            # NW
+            g = p_val
+            g &= (g >> 5) & p_val & bottom_row_mask
+            g &= (g >> 5) & p_val & bottom_row_mask
+            g &= (g >> 5) & p_val & bottom_row_mask
+            if g:
+                return p_num
+
+            # NE
+            g = p_val
+            g &= (g << 7) & p_val & bottom_row_mask
+            g &= (g << 7) & p_val & bottom_row_mask
+            g &= (g << 7) & p_val & bottom_row_mask
+            if g:
+                return p_num
+
+            # SW
+            g = p_val
+            g &= (g >> 7) & p_val & top_row_mask
+            g &= (g >> 7) & p_val & top_row_mask
+            g &= (g >> 7) & p_val & top_row_mask
+            if g:
+                return p_num
+
+            # SE
+            g = p_val
+            g &= (g << 5) & p_val & top_row_mask
+            g &= (g << 5) & p_val & top_row_mask
+            g &= (g << 5) & p_val & top_row_mask
+            if g:
+                return p_num
+
+        if occupied == 0x3ffffffffff:
+            return 3
+
+        return 0
+
+    def winner_message(self, winner):
+        if winner == 3:
+            return "Stalemate."
+        return "Winner: Player {0}.".format(winner)
