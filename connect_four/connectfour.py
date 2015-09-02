@@ -37,19 +37,19 @@ class Board(object):
     def pack(self, play):
         return str(play)
 
-    def is_legal(self, state, play):
-        p1, p2, player = state
+    def is_legal(self, state_history, play):
+        p1, p2, player = state_history[-1]
         occupied = p1 | p2
         column = (occupied >> (self.rows * play)) & 0b111111
         return column <= 0b11111
 
-    def legal_plays(self, state):
-        p1, p2, player = state
+    def legal_plays(self, state_history):
+        p1, p2, player = state_history[-1]
         occupied = p1 | p2
         return [c for c in xrange(self.cols)
                 if (occupied >> (self.rows * c)) & 0b111111 <= 0b11111]
 
-    def play(self, state, play):
+    def next_state(self, state, play):
         p1, p2, player = state
         occupied = p1 | p2
         column = (occupied >> (self.rows * play)) & 0b111111
@@ -61,11 +61,11 @@ class Board(object):
             p2 |= column
         return (p1, p2, 3 - player)
 
-    def next_player(self, state):
+    def current_player(self, state):
         return state[-1]
 
-    def winner(self, state_lst):
-        state = state_lst[-1]
+    def winner(self, state_history):
+        state = state_history[-1]
         p1, p2, player = state
         occupied = p1 | p2
 
