@@ -8,7 +8,7 @@ class Board(object):
     def __init__(self, *args, **kwargs):
         pass
 
-    def start(self):
+    def starting_state(self):
         return (0, 0, 1)
 
     def display(self, state, action):
