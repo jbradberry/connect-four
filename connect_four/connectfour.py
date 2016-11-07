@@ -142,7 +142,23 @@ class Board(object):
 
         return 0
 
-    def winner_message(self, winner):
+    def is_ended(self, history):
+        return bool(self.winner(history))
+
+    def win_values(self, history):
+        winner = self.winner(history)
+        if not winner:
+            return
+
         if winner == 3:
+            return {1: 0.5, 2: 0.5}
+        return {winner: 1, 3 - winner: 0}
+
+    points_values = win_values
+
+    def winner_message(self, winners):
+        winners = sorted((v, k) for k, v in winners.iteritems())
+        value, winner = winners[-1]
+        if value == 0.5:
             return "Stalemate."
         return "Winner: Player {0}.".format(winner)
