@@ -61,6 +61,9 @@ class Board(object):
             p2 |= column
         return (p1, p2, 3 - player)
 
+    def previous_player(self, state):
+        return 3 - state[-1]
+
     def current_player(self, state):
         return state[-1]
 
