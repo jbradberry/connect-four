@@ -19,7 +19,7 @@ class Board(object):
             " ".join(str(i) for i in xrange(self.cols)))
         bar = "  +{0}+".format("-"*(2*self.cols-1))
         msg = "Played: {0}\nPlayer {1} to move.".format(
-            self.pack(action), player)
+            self.unpack_action(action), player)
 
         board = u"\n".join(
             u"  |{0}|".format(
@@ -31,10 +31,10 @@ class Board(object):
         board = u"\n".join((header, bar, board, bar, header, msg))
         return board
 
-    def parse(self, action):
-        return int(action)
+    def pack_action(self, notation):
+        return int(notation)
 
-    def pack(self, action):
+    def unpack_action(self, action):
         return str(action)
 
     def is_legal(self, history, action):
