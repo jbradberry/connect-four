@@ -31,6 +31,32 @@ class Board(object):
         board = u"\n".join((header, bar, board, bar, header, msg))
         return board
 
+    def pack_state(self, data):
+        player = data['player']
+        state = {1: 0, 2: 0}
+        for item in data['pieces']:
+            index = 1 << (item['column'] * self.rows + item['row'])
+            state[item['player']] += index
+
+        return (state[1], state[2], player)
+
+    def unpack_state(self, state):
+        p1, p2, player = state
+        pieces = []
+        for c in xrange(self.cols):
+            for r in xrange(self.rows):
+                index = 1 << (c * self.rows + r)
+                if index & p1:
+                    pieces.append({'type': 'disc', 'player': 1, 'row': r, 'column': c})
+                if index & p2:
+                    pieces.append({'type': 'disc', 'player': 2, 'row': r, 'column': c})
+
+        return {
+            'pieces': pieces,
+            'player': player,
+            'previous_player': 3 - player,
+        }
+
     def pack_action(self, notation):
         return int(notation)
 
