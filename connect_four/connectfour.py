@@ -67,7 +67,7 @@ class Board(object):
         return {'column': action}
 
     def from_notation(self, notation):
-        return int(notation)
+        return int(notation) if notation else None
 
     def to_notation(self, action):
         return str(action)
