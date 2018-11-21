@@ -12,26 +12,29 @@ class Board(object):
         return (0, 0, 1)
 
     def display(self, state, action):
-        p1, p2, player = state
-
         piece = {0: " ", 1: u"\u25cb", 2: u"\u25cf"}
         header = "   {0}".format(
             " ".join(str(i) for i in xrange(self.cols)))
         bar = "  +{0}+".format("-"*(2*self.cols-1))
-        msg = "Played: {0}\nPlayer {1} to move.".format(
-            self.unpack_action(action), player)
+        msg = "{0}Player {1} to move.".format(
+            "Played: {0}\n".format(
+                self.to_notation(self.to_compact_action(action))) if action else '',
+            state['player']
+        )
+
+        P = [[0 for c in xrange(self.cols)] for r in xrange(self.rows)]
+        for p in state['pieces']:
+            P[p['row']][p['column']] = p['player']
 
         board = u"\n".join(
-            u"  |{0}|".format(
-                u"|".join(piece[((p1 >> ((c+1) * self.rows - r - 1)) & 1) +
-                                2*((p2 >> ((c+1) * self.rows - r - 1)) & 1)]
-                          for c in xrange(self.cols)))
-            for r in xrange(self.rows))
+            u"  |{0}|".format(u"|".join(piece[x] for x in row))
+            for row in reversed(P)
+        )
 
         board = u"\n".join((header, bar, board, bar, header, msg))
         return board
 
-    def pack_state(self, data):
+    def to_compact_state(self, data):
         player = data['player']
         state = {1: 0, 2: 0}
         for item in data['pieces']:
@@ -40,7 +43,7 @@ class Board(object):
 
         return (state[1], state[2], player)
 
-    def unpack_state(self, state):
+    def to_json_state(self, state):
         p1, p2, player = state
         pieces = []
         for c in xrange(self.cols):
@@ -57,10 +60,16 @@ class Board(object):
             'previous_player': 3 - player,
         }
 
-    def pack_action(self, notation):
+    def to_compact_action(self, action):
+        return action['column']
+
+    def to_json_action(self, action):
+        return {'column': action}
+
+    def from_notation(self, notation):
         return int(notation)
 
-    def unpack_action(self, action):
+    def to_notation(self, action):
         return str(action)
 
     def is_legal(self, history, action):
@@ -75,7 +84,8 @@ class Board(object):
         return [c for c in xrange(self.cols)
                 if (occupied >> (self.rows * c)) & 0b111111 <= 0b11111]
 
-    def next_state(self, state, action):
+    def next_state(self, history, action):
+        state = history[-1]
         p1, p2, player = state
         occupied = p1 | p2
         column = (occupied >> (self.rows * action)) & 0b111111
