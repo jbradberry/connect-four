@@ -72,14 +72,14 @@ class Board(object):
     def to_notation(self, action):
         return str(action)
 
-    def is_legal(self, history, action):
-        p1, p2, player = history[-1]
+    def is_legal(self, state, action):
+        p1, p2, player = state
         occupied = p1 | p2
         column = (occupied >> (self.rows * action)) & 0b111111
         return column <= 0b11111
 
-    def legal_actions(self, history):
-        p1, p2, player = history[-1]
+    def legal_actions(self, state):
+        p1, p2, player = state
         occupied = p1 | p2
         return [c for c in xrange(self.cols)
                 if (occupied >> (self.rows * c)) & 0b111111 <= 0b11111]
@@ -103,8 +103,7 @@ class Board(object):
     def current_player(self, state):
         return state[-1]
 
-    def winner(self, history):
-        state = history[-1]
+    def winner(self, state):
         p1, p2, player = state
         occupied = p1 | p2
 
@@ -181,11 +180,11 @@ class Board(object):
 
         return 0
 
-    def is_ended(self, history):
-        return bool(self.winner(history))
+    def is_ended(self, state):
+        return bool(self.winner(state))
 
-    def win_values(self, history):
-        winner = self.winner(history)
+    def win_values(self, state):
+        winner = self.winner(state)
         if not winner:
             return
 
