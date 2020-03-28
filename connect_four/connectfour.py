@@ -1,3 +1,5 @@
+import six
+from six.moves import range
 
 
 class Board(object):
@@ -14,7 +16,7 @@ class Board(object):
     def display(self, state, action):
         piece = {0: " ", 1: u"\u25cb", 2: u"\u25cf"}
         header = "   {0}".format(
-            " ".join(str(i) for i in xrange(self.cols)))
+            " ".join(str(i) for i in range(self.cols)))
         bar = "  +{0}+".format("-"*(2*self.cols-1))
         msg = "{0}Player {1} to move.".format(
             "Played: {0}\n".format(
@@ -22,7 +24,7 @@ class Board(object):
             state['player']
         )
 
-        P = [[0 for c in xrange(self.cols)] for r in xrange(self.rows)]
+        P = [[0 for c in range(self.cols)] for r in range(self.rows)]
         for p in state['pieces']:
             P[p['row']][p['column']] = p['player']
 
@@ -46,8 +48,8 @@ class Board(object):
     def to_json_state(self, state):
         p1, p2, player = state
         pieces = []
-        for c in xrange(self.cols):
-            for r in xrange(self.rows):
+        for c in range(self.cols):
+            for r in range(self.rows):
                 index = 1 << (c * self.rows + r)
                 if index & p1:
                     pieces.append({'type': 'disc', 'player': 1, 'row': r, 'column': c})
@@ -81,7 +83,7 @@ class Board(object):
     def legal_actions(self, state):
         p1, p2, player = state
         occupied = p1 | p2
-        return [c for c in xrange(self.cols)
+        return [c for c in range(self.cols)
                 if (occupied >> (self.rows * c)) & 0b111111 <= 0b11111]
 
     def next_state(self, history, action):
@@ -195,7 +197,7 @@ class Board(object):
     points_values = win_values
 
     def winner_message(self, winners):
-        winners = sorted((v, k) for k, v in winners.iteritems())
+        winners = sorted((v, k) for k, v in six.iteritems(winners))
         value, winner = winners[-1]
         if value == 0.5:
             return "Stalemate."
