@@ -1,5 +1,3 @@
-import six
-from six.moves import range
 
 
 class Board(object):
@@ -197,7 +195,7 @@ class Board(object):
     points_values = win_values
 
     def winner_message(self, winners):
-        winners = sorted((v, k) for k, v in six.iteritems(winners))
+        winners = sorted((v, k) for k, v in winners.items())
         value, winner = winners[-1]
         if value == 0.5:
             return "Stalemate."

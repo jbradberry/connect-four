@@ -9,7 +9,6 @@ setup(
     entry_points={
         'jrb_board.games': 'connect_four = connect_four.connectfour:Board',
     },
-    install_requires=['six'],
     license='LICENSE',
     description="An implementation of the game Connect Four.",
 )
