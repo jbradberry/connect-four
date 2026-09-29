@@ -12,7 +12,7 @@ class Board(object):
         return (0, 0, 1)
 
     def display(self, state, action):
-        piece = {0: " ", 1: u"\u25cb", 2: u"\u25cf"}
+        piece = {0: " ", 1: "\u25cb", 2: "\u25cf"}
         header = "   {0}".format(
             " ".join(str(i) for i in range(self.cols)))
         bar = "  +{0}+".format("-"*(2*self.cols-1))
@@ -26,12 +26,12 @@ class Board(object):
         for p in state['pieces']:
             P[p['row']][p['column']] = p['player']
 
-        board = u"\n".join(
-            u"  |{0}|".format(u"|".join(piece[x] for x in row))
+        board = "\n".join(
+            "  |{0}|".format("|".join(piece[x] for x in row))
             for row in reversed(P)
         )
 
-        board = u"\n".join((header, bar, board, bar, header, msg))
+        board = "\n".join((header, bar, board, bar, header, msg))
         return board
 
     def to_compact_state(self, data):
