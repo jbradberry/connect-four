@@ -1,8 +1,6 @@
-import six
-from six.moves import range
 
 
-class Board(object):
+class Board:
     num_players = 2
     rows = 6
     cols = 7
@@ -14,27 +12,23 @@ class Board(object):
         return (0, 0, 1)
 
     def display(self, state, action):
-        piece = {0: " ", 1: u"\u25cb", 2: u"\u25cf"}
-        header = "   {0}".format(
-            " ".join(str(i) for i in range(self.cols)))
-        bar = "  +{0}+".format("-"*(2*self.cols-1))
-        msg = "{0}Player {1} to move.".format(
-            "Played: {0}\n".format(
-                self.to_notation(self.to_compact_action(action))) if action else '',
-            state['player']
-        )
+        piece = {0: " ", 1: "\u25cb", 2: "\u25cf"}
 
         P = [[0 for c in range(self.cols)] for r in range(self.rows)]
         for p in state['pieces']:
             P[p['row']][p['column']] = p['player']
 
-        board = u"\n".join(
-            u"  |{0}|".format(u"|".join(piece[x] for x in row))
-            for row in reversed(P)
-        )
-
-        board = u"\n".join((header, bar, board, bar, header, msg))
-        return board
+        return "\n".join((
+            "   0 1 2 3 4 5 6",
+            "  +-------------+",
+            "\n".join(
+                f"  |{'|'.join(piece[x] for x in row)}|" for row in reversed(P)
+            ),
+            "  +-------------+",
+            "   0 1 2 3 4 5 6",
+            f"Played: {self.to_notation(self.to_compact_action(action))}\n" if action else '',
+            f"Player {state['player']} to move."
+        ))
 
     def to_compact_state(self, data):
         player = data['player']
@@ -197,8 +191,8 @@ class Board(object):
     points_values = win_values
 
     def winner_message(self, winners):
-        winners = sorted((v, k) for k, v in six.iteritems(winners))
+        winners = sorted((v, k) for k, v in winners.items())
         value, winner = winners[-1]
         if value == 0.5:
             return "Stalemate."
-        return "Winner: Player {0}.".format(winner)
+        return f"Winner: Player {winner}."
